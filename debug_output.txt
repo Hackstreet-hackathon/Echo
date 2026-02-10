@@ -1,0 +1,34 @@
+total 288
+drwxr-xr-x. 1 rahilralu rahilralu    530 Feb  7 12:22 .
+drwxr-xr-x. 1 rahilralu rahilralu    570 Feb  7 02:38 ..
+-rw-r--r--. 1 rahilralu rahilralu    238 Feb  7 02:41 analysis_options.yaml
+drwxr-xr-x. 1 rahilralu rahilralu    188 Feb  7 05:30 android
+drwxr-xr-x. 1 rahilralu rahilralu     42 Feb  7 02:43 assets
+drwxr-xr-x. 1 rahilralu rahilralu    730 Feb  7 11:51 build
+drwxr-xr-x. 1 rahilralu rahilralu      0 Feb  7 03:55 .cursor
+drwxr-xr-x. 1 rahilralu rahilralu    138 Feb  7 05:44 .dart_tool
+-rw-r--r--. 1 rahilralu rahilralu      0 Feb  7 12:22 debug_output.txt
+-rw-r--r--. 1 rahilralu rahilralu    842 Feb  7 02:56 echo.iml
+-rw-r--r--. 1 rahilralu rahilralu    118 Feb  7 04:17 .env
+-rw-r--r--. 1 rahilralu rahilralu    281 Feb  7 11:57 .env.example
+-rw-r--r--. 1 rahilralu rahilralu  12137 Feb  7 05:43 .flutter-plugins-dependencies
+-rw-r--r--. 1 rahilralu rahilralu 189071 Feb  7 05:35 flutter_run.log
+-rw-r--r--. 1 rahilralu rahilralu    318 Feb  7 02:49 .gitignore
+drwxr-xr-x. 1 rahilralu rahilralu    100 Feb  7 02:56 .idea
+-rw-r--r--. 1 rahilralu rahilralu     97 Feb  7 02:47 l10n.yaml
+drwxr-xr-x. 1 rahilralu rahilralu    100 Feb  7 02:47 lib
+drwxr-xr-x. 1 rahilralu rahilralu     74 Feb  7 02:56 linux
+-rw-r--r--. 1 rahilralu rahilralu    966 Feb  7 02:56 .metadata
+-rw-r--r--. 1 rahilralu rahilralu  43765 Feb  7 03:59 pubspec.lock
+-rw-r--r--. 1 rahilralu rahilralu   1287 Feb  7 03:59 pubspec.yaml
+-rw-r--r--. 1 rahilralu rahilralu   1466 Feb  7 02:49 README.md
+drwxr-xr-x. 1 rahilralu rahilralu     66 Feb  7 04:41 simulator
+-rw-r--r--. 1 rahilralu rahilralu   1089 Feb  7 04:40 supabase_schema.sql
+drwxr-xr-x. 1 rahilralu rahilralu     32 Feb  7 02:56 test
+-rw-r--r--. 1 rahilralu rahilralu     15 Feb  7 05:34 test_run.log
+drwxr-xr-x. 1 rahilralu rahilralu     26 Feb  7 05:36 .vscode
+flutter path: /home/rahilralu/flutter/bin/flutter
+Flutter 3.38.9 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision 67323de285 (9 days ago) • 2026-01-28 13:43:12 -0800
+Engine • hash 5eb06b7ad5bb8cbc22c5230264c7a00ceac7674b (revision 587c18f873) (10 days ago) • 2026-01-27 23:23:03.000Z
+Tools • Dart 3.10.8 • DevTools 2.51.1

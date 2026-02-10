@@ -1,0 +1,9 @@
+{
+  "@@locale": "en",
+  "appTitle": "ECHO",
+  "home": "Home",
+  "profile": "Profile",
+  "favorites": "Favorites",
+  "history": "History",
+  "settings": "Settings"
+}

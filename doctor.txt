@@ -1,0 +1,38 @@
+[✓] Flutter (Channel stable, 3.38.9, on Fedora Linux 43 (Workstation Edition) 6.18.7-200.fc43.x86_64, locale en_IN.UTF-8) [30ms]
+    • Flutter version 3.38.9 on channel stable at /home/rahilralu/flutter
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision 67323de285 (9 days ago), 2026-01-28 13:43:12 -0800
+    • Engine revision 587c18f873
+    • Dart version 3.10.8
+    • DevTools version 2.51.1
+    • Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file, enable-lldb-debugging
+
+[!] Android toolchain - develop for Android devices (Android SDK version 36.1.0) [183ms]
+    • Android SDK at /home/rahilralu/Android/Sdk
+    • Emulator version 36.3.10.0 (build_id 14472402) (CL:N/A)
+    ✗ cmdline-tools component is missing.
+      Try installing or updating Android Studio.
+      Alternatively, download the tools from https://developer.android.com/studio#command-line-tools-only and make sure to set the ANDROID_HOME environment variable.
+      See https://developer.android.com/studio/command-line for more details.
+    ✗ Android license status unknown.
+      Run `flutter doctor --android-licenses` to accept the SDK licenses.
+      See https://flutter.dev/to/linux-android-setup for more details.
+
+[✗] Chrome - develop for the web (Cannot find Chrome executable at google-chrome) [7ms]
+    ! Cannot find Chrome. Try setting CHROME_EXECUTABLE to a Chrome executable.
+
+[✓] Linux toolchain - develop for Linux desktop [168ms]
+    • clang version 21.1.8 (Fedora 21.1.8-4.fc43)
+    • cmake version 3.31.10
+    • ninja version 1.13.1
+    • pkg-config version 2.3.0
+    ! Unable to access driver information using 'eglinfo'.
+      It is likely available from your distribution (e.g.: apt install mesa-utils)
+
+[✓] Connected device (1 available) [51ms]
+    • Linux (desktop) • linux • linux-x64 • Fedora Linux 43 (Workstation Edition) 6.18.7-200.fc43.x86_64
+
+[✓] Network resources [2.9s]
+    • All expected network resources are available.
+
+! Doctor found issues in 2 categories.

@@ -1,0 +1,12 @@
+Doctor summary (to see all details, run flutter doctor -v):
+[✓] Flutter (Channel stable, 3.38.9, on Fedora Linux 43 (Workstation Edition) 6.18.7-200.fc43.x86_64, locale en_IN.UTF-8)
+[✓] Android toolchain - develop for Android devices (Android SDK version 36.1.0)
+[✗] Chrome - develop for the web (Cannot find Chrome executable at google-chrome)
+    ! Cannot find Chrome. Try setting CHROME_EXECUTABLE to a Chrome executable.
+[✓] Linux toolchain - develop for Linux desktop
+    ! Unable to access driver information using 'eglinfo'.
+      It is likely available from your distribution (e.g.: apt install mesa-utils)
+[✓] Connected device (2 available)
+[✓] Network resources
+
+! Doctor found issues in 1 category.

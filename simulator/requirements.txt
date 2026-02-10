@@ -1,0 +1,6 @@
+speechrecognition
+pyttsx3
+openai
+supabase
+python-dotenv
+pyaudio
