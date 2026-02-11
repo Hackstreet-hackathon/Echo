@@ -1,0 +1,47 @@
+[
+    {
+        "original_text": "the next train will be arriving in 10 minutes",
+        "llm_analysis": "The next train will arrive in 10 minutes.",
+        "timestamp": 1770809444.7656374
+    },
+    {
+        "original_text": "will be arriving in",
+        "llm_analysis": "The train will be arriving shortly. Please have your tickets ready and stand behind the safety line.",
+        "timestamp": 1770809458.6499467
+    },
+    {
+        "original_text": "the rainfall Genesis Dadi will be arriving in 10",
+        "llm_analysis": "The train \"Rainfall Genesis Dadi\" will be arriving in 10 minutes.",
+        "timestamp": 1770809474.4768438
+    },
+    {
+        "original_text": "Metro will be arriving in 10 minutes",
+        "llm_analysis": "The metro is expected to arrive in 10 minutes.",
+        "timestamp": 1770809537.0677476
+    },
+    {
+        "original_text": "the train Netravati will be arriving 10 minutes",
+        "llm_analysis": "The Netravati train will arrive in 10 minutes.",
+        "timestamp": 1770809556.680941
+    },
+    {
+        "original_text": "hello",
+        "llm_analysis": "Hello! How can I assist you today?",
+        "timestamp": 1770812945.7498548
+    },
+    {
+        "original_text": "chalo theek hai",
+        "llm_analysis": "\"Chalo theek hai\" translates to \"Alright then\" in English. If you're looking for a summary or announcement related to railways, please provide more specific information or context!",
+        "timestamp": 1770813576.1561327
+    },
+    {
+        "original_text": "I said hello can you hear",
+        "llm_analysis": "Yes, I can hear you! How can I assist you today?",
+        "timestamp": 1770813584.5727873
+    },
+    {
+        "original_text": "can you hear me",
+        "llm_analysis": "Yes, I can hear you. How can I assist you today?",
+        "timestamp": 1770815672.6536908
+    }
+]

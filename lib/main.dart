@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'core/theme/app_theme.dart';
@@ -57,15 +57,15 @@ class _AppSetupState extends State<AppSetup> {
 
       // 4. Environment
       setState(() => _statusMessage = '🔑 Loading Configuration...');
-      await dotenv.load(fileName: ".env");
+      // await dotenv.load(fileName: ".env");
 
       // 5. Supabase
       setState(() => _statusMessage = '⚡ Connecting to Cloud...');
-      debugPrint('Connecting to Supabase: ${dotenv.env['SUPABASE_URL']}');
-      
+      // debugPrint('Connecting to Supabase: ${dotenv.env['SUPABASE_URL']}');
+
       await Supabase.initialize(
-        url: dotenv.env['SUPABASE_URL'] ?? '',
-        anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+        anonKey: "sb_publishable_ei8tzYFkfayLkZSEDGs_iA_knWNk9S4",
+        url: "https://kogrpwqaexmweacsqili.supabase.co",
       );
 
       // 6. Notifications
@@ -124,7 +124,7 @@ class _AppSetupState extends State<AppSetup> {
                   color: AppColors.primary,
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Title
                 const Text(
                   'ECHO',
@@ -158,7 +158,8 @@ class _AppSetupState extends State<AppSetup> {
                   ),
                 ] else ...[
                   const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.primary),
                   ),
                   const SizedBox(height: 24),
                   Text(

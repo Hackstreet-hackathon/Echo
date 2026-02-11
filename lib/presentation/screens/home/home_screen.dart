@@ -8,10 +8,16 @@ import '../../../providers/announcement_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/providers.dart';
 import '../../../providers/speech_capture_provider.dart';
+
 import '../../widgets/announcement_banner.dart';
 import '../../widgets/announcement_card.dart';
 import '../../widgets/retry_button.dart';
 import '../../widgets/skeleton_loader.dart';
+
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -24,30 +30,83 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   AnnouncementModel? _latestBanner;
   bool _bannerDismissed = false;
 
+  final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
+  bool _isRecording = false;
+  String? _audioPath;
+
   @override
   void initState() {
     super.initState();
+    _initRecorder();
   }
+
+  /* ---------------- RECORDER SETUP ---------------- */
+
+  Future<void> _initRecorder() async {
+    final status = await Permission.microphone.request();
+
+    if (status != PermissionStatus.granted) {
+      throw RecordingPermissionException(
+          "Microphone permission not granted");
+    }
+
+    await _recorder.openRecorder();
+  }
+
+  @override
+  void dispose() {
+    _recorder.closeRecorder();
+    super.dispose();
+  }
+
+  /* ---------------- START RECORDING ---------------- */
+
+  Future<void> _startRecording() async {
+    final dir = await getTemporaryDirectory();
+    _audioPath = '${dir.path}/recorded_audio.wav';
+
+    await _recorder.startRecorder(
+      toFile: _audioPath,
+      codec: Codec.pcm16WAV,
+    );
+
+    setState(() => _isRecording = true);
+
+    print("Recording started...");
+  }
+
+  /* ---------------- STOP RECORDING ---------------- */
+
+  Future<void> _stopRecording() async {
+    await _recorder.stopRecorder();
+    setState(() => _isRecording = false);
+
+    print("Recording stopped.");
+
+    if (_audioPath != null) {
+      print("Recording saved at: $_audioPath");
+
+      final file = File(_audioPath!);
+      print("File exists: ${file.existsSync()}");
+
+      if (file.existsSync()) {
+        print("File size: ${file.lengthSync()} bytes");
+      }
+    }
+  }
+
+  /* ---------------- TEXT TO SPEECH ---------------- */
 
   void _playVoice(String text) {
     ref.read(speechServiceProvider).speak(text);
   }
 
+  /* ---------------- UI ---------------- */
+
   @override
   Widget build(BuildContext context) {
-    // Listen to realtime announcements from Supabase for the banner.
-    ref.listen(announcementsRealtimeProvider, (prev, next) {
-      next.whenData((list) {
-        if (list.isNotEmpty && !_bannerDismissed) {
-          setState(() => _latestBanner = list.first);
-        }
-      });
-    });
-
     final announcements = ref.watch(announcementsRealtimeProvider);
-    final liveSpeech = ref.watch(liveSpeechCaptureProvider);
     final connectivity = ref.watch(connectivityServiceProvider);
-    final profile = ref.watch(userProfileProvider);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
@@ -58,8 +117,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Chip(
-                label: const Text('Offline', style: TextStyle(fontSize: 12)),
-                backgroundColor: AppColors.warning.withOpacity(0.2),
+                label: const Text('Offline',
+                    style: TextStyle(fontSize: 12)),
+                backgroundColor:
+                    AppColors.warning.withOpacity(0.2),
               ),
             ),
           IconButton(
@@ -77,101 +138,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (_latestBanner != null && !_bannerDismissed)
             AnnouncementBanner(
               announcement: _latestBanner!,
-              onDismiss: () => setState(() => _bannerDismissed = true),
-              onPlayVoice: () => _playVoice(_latestBanner!.speechRecognized),
+              onDismiss: () =>
+                  setState(() => _bannerDismissed = true),
+              onPlayVoice: () =>
+                  _playVoice(_latestBanner!.speechRecognized),
             ),
           Expanded(
             child: announcements.when(
               data: (list) {
                 if (list.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.campaign_outlined,
-                          size: 64,
-                          color: AppColors.textSecondaryDark,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No announcements yet',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Pull to refresh when connected',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: 24),
-                        RetryButton(
-                          onRetry: () =>
-                              ref.invalidate(announcementsRealtimeProvider),
-                        ),
-                      ],
-                    ),
+                  return const Center(
+                    child: Text("No announcements yet"),
                   );
                 }
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    ref.invalidate(announcementsRealtimeProvider);
+
+                return ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  itemCount: list.length,
+                  itemBuilder: (_, i) {
+                    final a = list[i];
+                    return AnnouncementCard(
+                      announcement: a,
+                      onPlayVoice: () =>
+                          _playVoice(a.speechRecognized),
+                      onFavorite: () async {
+                        await ref
+                            .read(cacheServiceProvider)
+                            .addToFavorites(a);
+                        await ref
+                            .read(cacheServiceProvider)
+                            .addToHistory(a);
+                      },
+                      showPwdBadge: true,
+                    );
                   },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    itemCount: list.length,
-                    itemBuilder: (_, i) {
-                      final a = list[i];
-                      return AnnouncementCard(
-                        announcement: a,
-                        onPlayVoice: () => _playVoice(a.speechRecognized),
-                        onFavorite: () async {
-                          await ref
-                              .read(cacheServiceProvider)
-                              .addToFavorites(a);
-                          await ref
-                              .read(cacheServiceProvider)
-                              .addToHistory(a);
-                        },
-                        showPwdBadge: true,
-                      );
-                    },
-                  ),
                 );
               },
               loading: () => const SkeletonLoader(),
-              error: (e, _) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: AppColors.error,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Something went wrong',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 24),
-                    RetryButton(
-                      onRetry: () =>
-                          ref.read(announcementsProvider.notifier).refresh(),
-                    ),
-                  ],
-                ),
-              ),
+              error: (e, _) =>
+                  const Center(child: Text("Error loading")),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () =>
-            ref.read(liveSpeechCaptureProvider.notifier).toggle(),
-        icon: Icon(
-          liveSpeech.isListening ? Icons.mic_off : Icons.mic,
+
+      /* -------- RECORD BUTTON -------- */
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor:
+            _isRecording ? Colors.red : Colors.blue,
+        onPressed: () {
+          if (_isRecording) {
+            _stopRecording();
+          } else {
+            _startRecording();
+          }
+        },
+        child: Icon(
+          _isRecording ? Icons.stop : Icons.mic,
         ),
-        label: Text(liveSpeech.isListening ? 'Stop listening' : 'Live capture'),
       ),
     );
   }
