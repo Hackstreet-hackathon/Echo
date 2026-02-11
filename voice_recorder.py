@@ -1,4 +1,4 @@
-from flask import Flask, jsonify,request
+from flask import Flask, jsonify, request
 import speech_recognition as sr
 import pyttsx3
 from openai import OpenAI
@@ -6,6 +6,11 @@ import json
 import os
 import threading
 import time
+from dotenv import load_dotenv
+import uuid
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ==============================
 # FLASK APP
@@ -16,9 +21,12 @@ app = Flask(__name__)
 # LLM CLIENT (SECURE)
 # ==============================
 client = OpenAI(
-    api_key=os.environ.get("OPENROUTER_API_KEY"),
+    api_key=os.environ.get("OPENROUTER_KEY"),
     base_url="https://openrouter.ai/api/v1"
 )
+
+# Debug: Check if key is loaded
+api_key = os.environ.get("OPENROUTER_KEY")
 
 # ==============================
 # SPEECH SETUP
@@ -78,15 +86,27 @@ def analyze_with_llm(text):
         response = client.chat.completions.create(
             model="openai/gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Summarize railway announcements clearly."},
+                {"role": "system", "content": """You are a railway announcement analyzer. Analyze the announcement and return a JSON response with:
+1. "summary": A clear, concise summary of the announcement
+2. "priority": One of "high", "medium", or "low" based on urgency
+
+Priority guidelines:
+- HIGH: Safety issues, emergencies, immediate platform changes, train cancellations, severe delays
+- MEDIUM: Moderate delays, platform announcements, service updates
+- LOW: General information, next station announcements, routine updates
+
+Return ONLY valid JSON in this format:
+{"summary": "your summary here", "priority": "high/medium/low"}"""},
                 {"role": "user", "content": text}
             ]
         )
 
-        return response.choices[0].message.content
+        result = response.choices[0].message.content
+        # Parse the JSON response
+        parsed = json.loads(result)
+        return parsed
     except Exception as e:
-        return f"LLM Error: {e}"
-
+        return {"summary": f"LLM Error: {e}", "priority": "low"}
 
 
 def voice_listener():
@@ -114,7 +134,8 @@ def voice_listener():
 
         entry = {
             "original_text": text,
-            "llm_analysis": llm_output,
+            "llm_analysis": llm_output.get("summary", "Error processing"),
+            "priority": llm_output.get("priority", "low"),
             "timestamp": time.time()
         }
 
@@ -164,7 +185,6 @@ def status():
         "total_records": len(all_inputs)
     })
 
-import uuid
 
 @app.route("/upload_audio", methods=["POST"])
 def upload_audio():
@@ -192,12 +212,12 @@ def upload_audio():
 
         return jsonify({
             "original_text": text,
-            "llm_output": llm_output
+            "llm_output": llm_output.get("summary", "Error processing"),
+            "priority": llm_output.get("priority", "low")
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 
 # ==============================
