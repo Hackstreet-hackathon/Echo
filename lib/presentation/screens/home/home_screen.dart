@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.62.110.98:5000',
+      baseUrl: 'https://roofless-unmelodramatically-sharita.ngrok-free.dev',
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
     ),
