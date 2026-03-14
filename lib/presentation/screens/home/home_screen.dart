@@ -13,6 +13,7 @@ import '../../../data/models/announcement_model.dart';
 import '../../../core/utils/logger.dart';
 import '../../../providers/saved_announcements_provider.dart';
 import '../filters/train_filter_screen.dart';
+import '../../widgets/announcement_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

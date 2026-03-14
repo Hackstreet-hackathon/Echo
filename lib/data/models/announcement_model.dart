@@ -6,7 +6,12 @@ import 'ticket_model.dart';
 /// Announcement entity from backend API
 class AnnouncementModel extends Equatable {
   const AnnouncementModel({
+    this.id,
     required this.name,
+    this.trainNumber,
+    this.status,
+    this.type,
+    this.priority = 'Low',
     required this.speechRecognized,
     required this.time,
     this.isPWD = false,
