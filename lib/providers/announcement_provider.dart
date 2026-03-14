@@ -80,17 +80,26 @@ class AnnouncementsNotifier
 final announcementsRealtimeProvider =
     StreamProvider<List<AnnouncementModel>>((ref) {
   final client = Supabase.instance.client;
+  final filter = ref.watch(trainFilterProvider);
 
   return client
       .from('announcements')
       .stream(primaryKey: ['id'])
       .order('time', ascending: false)
       .map((rows) {
-    final list = rows
+    var list = rows
         .map((row) => AnnouncementModel.fromJson(
               Map<String, dynamic>.from(row),
             ))
-        .toList(growable: false);
+        .toList();
+
+    // Filter by train number if search is active
+    if (filter != 'All' && filter.isNotEmpty) {
+      list = list.where((a) {
+        final trainNo = a.ticket?.trainNo ?? '';
+        return trainNo.contains(filter) || filter.contains(trainNo);
+      }).toList();
+    }
 
     // Sort by priority: High > Medium > Low
     list.sort((a, b) {

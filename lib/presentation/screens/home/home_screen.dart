@@ -12,6 +12,7 @@ import '../../../providers/providers.dart';
 import '../../../data/models/announcement_model.dart';
 import '../../../core/utils/logger.dart';
 import '../../../providers/saved_announcements_provider.dart';
+import '../filters/train_filter_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -214,43 +215,94 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () async {
+              final trainService = ref.read(trainServiceProvider);
+              await trainService.initialize();
+              if (mounted) {
+                final selectedTrain = await showSearch(
+                  context: context,
+                  delegate: TrainSearchDelegate(trainService),
+                );
+                if (selectedTrain != null) {
+                  ref.read(trainFilterProvider.notifier).state = selectedTrain.number;
+                }
+              }
+            },
+            tooltip: 'Search by train',
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_sweep),
             onPressed: _clearAllAnnouncements,
             tooltip: 'Clear all announcements',
           ),
         ],
       ),
-      body: announcementsAsync.when(
-        data: (list) {
-          if (list.isEmpty) {
-            return const Center(
-              child: Text(
-                "No announcements yet",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            );
-          return ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              final ann = list[index];
-              final announcementId = ann.id ?? index.toString();
-              final isSaved = ref.watch(savedAnnouncementsProvider).value?.any((e) => e.id == ann.id) ?? false;
-
-              return AnnouncementCard(
-                announcement: ann,
-                isFavorite: isSaved,
-                onFavorite: () => ref.read(savedAnnouncementsProvider.notifier).toggleSave(ann),
-                onPlayVoice: () => _playAnnouncement(
-                  ann.speechRecognized,
-                  announcementId,
+      body: Column(
+        children: [
+          // Active Filter Chip
+          Consumer(
+            builder: (context, ref, _) {
+              final filter = ref.watch(trainFilterProvider);
+              if (filter == 'All' || filter.isEmpty) return const SizedBox.shrink();
+              
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Colors.blue.shade50,
+                child: Row(
+                  children: [
+                    const Icon(Icons.filter_list, size: 16, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Filtered by Train: $filter',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => ref.read(trainFilterProvider.notifier).state = 'All',
+                      child: const Text('Clear'),
+                    ),
+                  ],
                 ),
               );
             },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading announcements: $err')),
+          ),
+          Expanded(
+            child: announcementsAsync.when(
+              data: (list) {
+                if (list.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No matching announcements",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final ann = list[index];
+                    final announcementId = ann.id ?? index.toString();
+                    final isSaved = ref.watch(savedAnnouncementsProvider).value?.any((e) => e.id == ann.id) ?? false;
+
+                    return AnnouncementCard(
+                      announcement: ann,
+                      isFavorite: isSaved,
+                      onFavorite: () => ref.read(savedAnnouncementsProvider.notifier).toggleSave(ann),
+                      onPlayVoice: () => _playAnnouncement(
+                        ann.speechRecognized,
+                        announcementId,
+                      ),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error loading announcements: $err')),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _isRecording ? _stopRecording : _startRecording,
