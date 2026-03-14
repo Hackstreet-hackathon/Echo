@@ -64,8 +64,8 @@ class _AppSetupState extends State<AppSetup> {
       // debugPrint('Connecting to Supabase: ${dotenv.env['SUPABASE_URL']}');
 
       await Supabase.initialize(
-        anonKey: "sb_publishable_ei8tzYFkfayLkZSEDGs_iA_knWNk9S4",
-        url: "https://kogrpwqaexmweacsqili.supabase.co",
+        url: "https://tzxhevtpeerooqmmriuk.supabase.co",
+        anonKey: "sb_publishable_VAsQyXuddxZOkHgmtu-m7w_3hy28bDV",
       );
 
       // 6. Notifications

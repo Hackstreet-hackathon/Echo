@@ -11,8 +11,9 @@ class MainScaffold extends StatelessWidget {
 
   int _calculateSelectedIndex(BuildContext context) {
     final path = GoRouterState.of(context).uri.path;
-    if (path.startsWith('/profile')) return 1;
-    if (path.startsWith('/settings')) return 2;
+    if (path.startsWith('/saved-announcements')) return 1;
+    if (path.startsWith('/profile')) return 2;
+    if (path.startsWith('/settings')) return 3;
     return 0;
   }
 
@@ -22,9 +23,12 @@ class MainScaffold extends StatelessWidget {
         context.go('/');
         break;
       case 1:
-        context.go('/profile');
+        context.go('/saved-announcements');
         break;
       case 2:
+        context.go('/profile');
+        break;
+      case 3:
         context.go('/settings');
         break;
     }
@@ -43,6 +47,11 @@ class MainScaffold extends StatelessWidget {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark_border),
+            selectedIcon: Icon(Icons.bookmark),
+            label: 'Saved',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

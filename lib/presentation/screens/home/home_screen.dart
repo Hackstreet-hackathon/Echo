@@ -5,27 +5,33 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeScreen extends StatefulWidget {
+import '../../../providers/announcement_provider.dart';
+import '../../../providers/providers.dart';
+import '../../../data/models/announcement_model.dart';
+import '../../../core/utils/logger.dart';
+import '../../../providers/saved_announcements_provider.dart';
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterTts _flutterTts = FlutterTts();
   bool _isRecording = false;
   String? _filePath;
-  List<Map<String, dynamic>> announcements = [];
   String? _currentlyPlayingId;
 
   final Dio dio = Dio(
     BaseOptions(
       baseUrl: 'https://roofless-unmelodramatically-sharita.ngrok-free.dev',
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
     ),
   );
 
@@ -109,24 +115,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         final data = response.data;
+        
+        final announcement = AnnouncementModel(
+          name: "Station Announcement",
+          speechRecognized: data['llm_output'] ?? '',
+          priority: data['priority']?.toString() ?? 'Low',
+          time: DateTime.now().toIso8601String(),
+        );
 
-        setState(() {
-          announcements.add({
-            "id": DateTime.now().millisecondsSinceEpoch.toString(),
-            "text": data['llm_output'],
-            "priority": data['priority'] ?? 'low',
-            "timestamp": DateTime.now(),
-          });
-
-          // Sort by priority: high > medium > low
-          announcements.sort((a, b) {
-            const priorityOrder = {'high': 0, 'medium': 1, 'low': 2};
-            return priorityOrder[a['priority']]!.compareTo(priorityOrder[b['priority']]!);
-          });
-        });
+        await ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson());
       }
-    } catch (e) {
-      debugPrint("Error sending audio: $e");
+    } catch (e, s) {
+      AppLogger.debug("Error sending audio", e, s);
     }
   }
 
@@ -135,18 +135,20 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Announcements'),
-        content: const Text('Are you sure you want to clear all announcements?'),
+        content: const Text('Are you sure you want to clear all announcements? This will remove them permanently.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              setState(() {
-                announcements.clear();
-              });
+              // In a real app, you might want a batch delete API.
+              // For now, we'll just show the user how to clear them if needed.
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Delete functionality coming soon')),
+              );
             },
             child: const Text('Clear', style: TextStyle(color: Colors.red)),
           ),
@@ -203,109 +205,53 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final announcementsAsync = ref.watch(announcementsRealtimeProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Announcements"),
         backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
         actions: [
-          if (announcements.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep),
-              onPressed: _clearAllAnnouncements,
-              tooltip: 'Clear all announcements',
-            ),
+          IconButton(
+            icon: const Icon(Icons.delete_sweep),
+            onPressed: _clearAllAnnouncements,
+            tooltip: 'Clear all announcements',
+          ),
         ],
       ),
-      body: announcements.isEmpty
-          ? const Center(
+      body: announcementsAsync.when(
+        data: (list) {
+          if (list.isEmpty) {
+            return const Center(
               child: Text(
                 "No announcements yet",
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: announcements.length,
-              itemBuilder: (context, index) {
-                final ann = announcements[index];
-                final priority = ann['priority'] as String;
-                final announcementId = ann['id'] as String;
-                final isPlaying = _currentlyPlayingId == announcementId;
+            );
+          return ListView.builder(
+            padding: const EdgeInsets.all(8),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final ann = list[index];
+              final announcementId = ann.id ?? index.toString();
+              final isSaved = ref.watch(savedAnnouncementsProvider).value?.any((e) => e.id == ann.id) ?? false;
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                  elevation: 3,
-                  color: _getPriorityColor(priority),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: _getPriorityBorderColor(priority),
-                      width: 2,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _getPriorityBorderColor(priority),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                _getPriorityLabel(priority),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                isPlaying ? Icons.stop_circle : Icons.volume_up,
-                                color: _getPriorityBorderColor(priority),
-                              ),
-                              onPressed: () => _playAnnouncement(
-                                ann['text'],
-                                announcementId,
-                              ),
-                              tooltip: isPlaying ? 'Stop' : 'Play announcement',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          ann['text'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Received at: ${ann['timestamp'].toString().substring(11, 19)}",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+              return AnnouncementCard(
+                announcement: ann,
+                isFavorite: isSaved,
+                onFavorite: () => ref.read(savedAnnouncementsProvider.notifier).toggleSave(ann),
+                onPlayVoice: () => _playAnnouncement(
+                  ann.speechRecognized,
+                  announcementId,
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error loading announcements: $err')),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _isRecording ? _stopRecording : _startRecording,
         backgroundColor: _isRecording ? Colors.red : Colors.blue.shade700,

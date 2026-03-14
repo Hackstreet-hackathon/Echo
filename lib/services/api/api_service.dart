@@ -66,4 +66,65 @@ class ApiService {
       rethrow;
     }
   }
+
+  Future<void> saveAnnouncement(String announcementId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    try {
+      await _client.from('saved_announcements').upsert({
+        'user_id': user.id,
+        'announcement_id': announcementId,
+      });
+    } catch (e, s) {
+      AppLogger.debug('saveAnnouncement failed', e, s);
+      rethrow;
+    }
+  }
+
+  Future<void> unsaveAnnouncement(String announcementId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _client
+          .from('saved_announcements')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('announcement_id', announcementId);
+    } catch (e, s) {
+      AppLogger.debug('unsaveAnnouncement failed', e, s);
+      rethrow;
+    }
+  }
+
+  Future<List<AnnouncementModel>> getSavedAnnouncements() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+
+    try {
+      final data = await _client
+          .from('saved_announcements')
+          .select('announcements(*)')
+          .eq('user_id', user.id)
+          .order('created_at', ascending: false);
+
+      if (data is List) {
+        return data
+            .map((e) {
+              final announcementData = e['announcements'];
+              if (announcementData != null) {
+                return AnnouncementModel.fromJson(announcementData as Map<String, dynamic>);
+              }
+              return null;
+            })
+            .whereType<AnnouncementModel>()
+            .toList();
+      }
+      return [];
+    } catch (e, s) {
+      AppLogger.debug('getSavedAnnouncements failed', e, s);
+      rethrow;
+    }
+  }
 }

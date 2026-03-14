@@ -11,11 +11,8 @@ class AnnouncementModel extends Equatable {
     required this.time,
     this.isPWD = false,
     this.ticket,
-    this.id,
-    this.trainNumber,
-    this.status,
-    this.type,
-    this.priority = 'Low',
+    this.platform,
+    this.phone,
   });
 
   final String? id;
@@ -28,6 +25,8 @@ class AnnouncementModel extends Equatable {
   final TicketModel? ticket;
   final String speechRecognized;
   final String time;
+  final int? platform;
+  final String? phone;
 
   DateTime? get parsedTime => app_utils.AppDateUtils.parseIso8601(time);
 
@@ -43,9 +42,14 @@ class AnnouncementModel extends Equatable {
       ticket: json['ticket'] != null
           ? TicketModel.fromJson(json['ticket'] as Map<String, dynamic>)
           : null,
-      speechRecognized:
-          json['speech_recognized'] as String? ?? json['speechRecognized'] as String? ?? '',
+      speechRecognized: json['speech_recognized'] as String? ??
+          json['speechRecognized'] as String? ??
+          json['llm_output'] as String? ??
+          json['text'] as String? ??
+          '',
       time: json['time'] as String? ?? DateTime.now().toIso8601String(),
+      platform: json['platform'] as int?,
+      phone: json['phone'] as String?,
     );
   }
 
@@ -53,7 +57,7 @@ class AnnouncementModel extends Equatable {
     return {
       if (id != null) 'id': id,
       'name': name,
-      if (trainNumber != null) 'train_number': trainNumber,
+       if (trainNumber != null) 'train_number': trainNumber,
       if (status != null) 'status': status,
       if (type != null) 'type': type,
       'priority': priority,
@@ -61,6 +65,8 @@ class AnnouncementModel extends Equatable {
       if (ticket != null) 'ticket': ticket!.toJson(),
       'speech_recognized': speechRecognized,
       'time': time,
+      if (platform != null) 'platform': platform,
+      if (phone != null) 'phone': phone,
     };
   }
 
@@ -72,6 +78,8 @@ class AnnouncementModel extends Equatable {
     String? speechRecognized,
     String? time,
     String? priority,
+    int? platform,
+    String? phone,
   }) {
     return AnnouncementModel(
       id: id ?? this.id,
@@ -81,9 +89,21 @@ class AnnouncementModel extends Equatable {
       speechRecognized: speechRecognized ?? this.speechRecognized,
       time: time ?? this.time,
       priority: priority ?? this.priority,
+      platform: platform ?? this.platform,
+      phone: phone ?? this.phone,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, isPWD, ticket, speechRecognized, time, priority];
+  List<Object?> get props => [
+        id,
+        name,
+        isPWD,
+        ticket,
+        speechRecognized,
+        time,
+        priority,
+        platform,
+        phone,
+      ];
 }

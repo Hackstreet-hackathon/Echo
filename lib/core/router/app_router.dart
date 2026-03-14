@@ -17,6 +17,7 @@ import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/feed/announcement_feed_screen.dart';
 import '../../presentation/screens/filters/platform_filter_screen.dart';
 import '../../presentation/screens/filters/train_filter_screen.dart';
+import '../../presentation/screens/saved/saved_announcements_screen.dart';
 import '../../presentation/widgets/main_scaffold.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -76,6 +77,10 @@ GoRouter createAppRouter() {
                 builder: (_, __) => const PlatformFilterScreen(),
               ),
             ],
+          ),
+          GoRoute(
+            path: '/saved-announcements',
+            builder: (_, __) => const SavedAnnouncementsScreen(),
           ),
           GoRoute(
             path: '/profile',
