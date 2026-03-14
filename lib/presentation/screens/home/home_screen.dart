@@ -29,9 +29,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: 'https://roofless-unmelodramatically-sharita.ngrok-free.dev',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      baseUrl: 'https://echo-0jga.onrender.com',
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
     ),
   );
 
