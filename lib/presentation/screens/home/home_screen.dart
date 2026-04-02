@@ -128,7 +128,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         String priority = data['priority']?.toString() ?? 'Low';
         final llmOutputText = data['llm_output']?.toString().toLowerCase() ?? '';
         
-        // Client-side hard override for critical keywords to ensure Red/High priority
         if (llmOutputText.contains('minute') && (llmOutputText.contains('1') || llmOutputText.contains('2')) || 
             llmOutputText.contains('second') || 
             llmOutputText.contains('immediately') ||
@@ -138,7 +137,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             llmOutputText.contains('emergency')) {
           priority = 'High';
         } 
-        // Force Medium for moderate timings
         else if (llmOutputText.contains('5 minute') || 
                  llmOutputText.contains('10 minute') ||
                  llmOutputText.contains('delayed')) {
@@ -152,14 +150,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           time: DateTime.now().toIso8601String(),
         );
 
-        await ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson());
-        // Force invalidate the realtime provider to ensure immediate refresh
-        ref.invalidate(announcementsRealtimeProvider);
-        // Also refresh the cached provider
-        ref.read(announcementsProvider.notifier).refresh();
+        // HIDE OVERLAY IMMEDIATELY as we have the AI result
+        if (mounted) {
+          setState(() {
+            _isProcessing = false;
+          });
+        }
+
+        // Upload to Supabase in the background to avoid UI lag
+        ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson()).then((_) {
+          ref.invalidate(announcementsRealtimeProvider);
+          ref.read(announcementsProvider.notifier).refresh();
+        }).catchError((e) {
+          AppLogger.debug("Background upload failed", e);
+        });
+      }
+    } catch (e, s) {
+      AppLogger.debug("Error sending audio", e, s);
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e is DioException && e.type == DioExceptionType.connectionTimeout 
+              ? "Connection timeout. Render might be starting up..." 
+              : "Error: ${e.toString()}"),
+            duration: const Duration(seconds: 5),
+          ),
+        );
       }
     } finally {
-      if (mounted) {
+      // Ensure overlay is hidden if not handled above
+      if (mounted && _isProcessing) {
         setState(() {
           _isProcessing = false;
         });
