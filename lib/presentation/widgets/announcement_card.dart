@@ -52,11 +52,13 @@ class AnnouncementCard extends StatelessWidget {
         priorityBgColor = Colors.orange.shade700;
         priorityTextColor = Colors.white;
         break;
+      case 'low':
       default:
-        cardColor = AppColors.cardDark;
-        borderColor = AppColors.cardDark.withOpacity(0.3);
-        priorityBgColor = null;
-        priorityTextColor = null;
+        cardColor = Colors.green.shade900.withOpacity(0.15);
+        borderColor = Colors.green.shade700;
+        priorityBgColor = Colors.green.shade700;
+        priorityTextColor = Colors.white;
+        break;
     }
 
     // Get announcement text with fallback

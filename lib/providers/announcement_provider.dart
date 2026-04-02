@@ -97,8 +97,13 @@ final announcementsRealtimeProvider =
     // Filter by train number if search is active
     if (filter != 'All' && filter.isNotEmpty) {
       list = list.where((a) {
-        final trainNo = a.ticket?.trainNo ?? '';
-        return trainNo.contains(filter) || filter.contains(trainNo);
+        final trainNoField = a.trainNumber ?? a.ticket?.trainNo ?? '';
+        final speechText = a.speechRecognized.toLowerCase();
+        final searchPattern = filter.toLowerCase();
+        
+        return trainNoField.contains(filter) || 
+               filter.contains(trainNoField) || 
+               speechText.contains(searchPattern);
       }).toList();
     }
 
