@@ -121,11 +121,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (response.statusCode == 200) {
         final data = response.data;
         
+        String priority = data['priority']?.toString() ?? 'Low';
+        final llmOutputText = data['llm_output']?.toString().toLowerCase() ?? '';
+        
+        // Client-side hard override for critical keywords to ensure Red/High priority
+        if (llmOutputText.contains('1 minute') || 
+            llmOutputText.contains('2 minute') || 
+            llmOutputText.contains('5 second') || 
+            llmOutputText.contains('immediately') ||
+            llmOutputText.contains('cancelled') ||
+            llmOutputText.contains('emergency')) {
+          priority = 'High';
+        }
+
         final announcement = AnnouncementModel(
           name: "Station Announcement",
           speechRecognized: data['llm_output'] ?? '',
-          priority: data['priority']?.toString() ?? 'Low',
+          priority: priority,
           time: DateTime.now().toIso8601String(),
+          trainNumber: filter != 'All' ? filter : null,
         );
 
         await ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson());

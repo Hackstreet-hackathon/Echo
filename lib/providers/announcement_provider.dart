@@ -101,9 +101,12 @@ final announcementsRealtimeProvider =
         final speechText = a.speechRecognized.toLowerCase();
         final searchPattern = filter.toLowerCase();
         
-        return trainNoField.contains(filter) || 
-               filter.contains(trainNoField) || 
-               speechText.contains(searchPattern);
+        bool matches = false;
+        if (trainNoField.isNotEmpty) {
+          matches = trainNoField.contains(filter) || filter.contains(trainNoField);
+        }
+        
+        return matches || speechText.contains(searchPattern);
       }).toList();
     }
 
