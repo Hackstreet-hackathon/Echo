@@ -125,11 +125,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final llmOutputText = data['llm_output']?.toString().toLowerCase() ?? '';
         
         // Client-side hard override for critical keywords to ensure Red/High priority
-        if (llmOutputText.contains('1 minute') || 
-            llmOutputText.contains('2 minute') || 
-            llmOutputText.contains('5 second') || 
-            llmOutputText.contains('10 second') ||
+        if (llmOutputText.contains('minute') && (llmOutputText.contains('1') || llmOutputText.contains('2')) || 
+            llmOutputText.contains('second') || 
             llmOutputText.contains('immediately') ||
+            llmOutputText.contains('reached') ||
+            llmOutputText.contains('platform') ||
             llmOutputText.contains('cancelled') ||
             llmOutputText.contains('emergency')) {
           priority = 'High';
