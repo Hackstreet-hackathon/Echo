@@ -153,6 +153,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
 
         await ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson());
+        // Force invalidate the realtime provider to ensure immediate refresh
+        ref.invalidate(announcementsRealtimeProvider);
+        // Also refresh the cached provider
+        ref.read(announcementsProvider.notifier).refresh();
       }
     } finally {
       if (mounted) {
