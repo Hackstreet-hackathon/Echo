@@ -40,6 +40,7 @@ class AnnouncementCard extends StatelessWidget {
     
     switch (announcement.priority.toLowerCase()) {
       case 'high':
+      case 'emergency':
         cardColor = Colors.red.shade900.withOpacity(0.15);
         borderColor = Colors.red.shade700;
         priorityBgColor = Colors.red.shade700;

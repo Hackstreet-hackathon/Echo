@@ -62,6 +62,7 @@ class AnnouncementsNotifier
 
   int _getPriorityValue(String priority) {
     switch (priority.toLowerCase()) {
+      case 'emergency':
       case 'high':
         return 3;
       case 'medium':
@@ -105,6 +106,7 @@ final announcementsRealtimeProvider =
     list.sort((a, b) {
       int p(String pr) {
         switch (pr.toLowerCase()) {
+          case 'emergency':
           case 'high':
             return 3;
           case 'medium':

@@ -67,6 +67,15 @@ class ApiService {
     }
   }
 
+  Future<void> deleteAllAnnouncements() async {
+    try {
+      await _client.from('announcements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (e, s) {
+      AppLogger.debug('deleteAllAnnouncements failed', e, s);
+      rethrow;
+    }
+  }
+
   Future<void> saveAnnouncement(String announcementId) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('User not authenticated');

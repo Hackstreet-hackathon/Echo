@@ -154,11 +154,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              // In a real app, you might want a batch delete API.
-              // For now, we'll just show the user how to clear them if needed.
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Delete functionality coming soon')),
-              );
+              try {
+                await ref.read(apiServiceProvider).deleteAllAnnouncements();
+                // If using the StateNotifier provider, refresh it
+                ref.read(announcementsProvider.notifier).refresh();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('All announcements cleared')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to clear announcements: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Clear', style: TextStyle(color: Colors.red)),
           ),
