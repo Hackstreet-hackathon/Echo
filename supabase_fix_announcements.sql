@@ -1,11 +1,13 @@
 -- Fix for Announcement Upload and Realtime Display
 
--- 1. Allow authenticated users to insert announcements
--- This is needed for the voice input feature to work
-create policy "Allow authenticated insert access"
+-- 1. Allow ALL users (anon and authenticated) to insert announcements
+-- This ensures voice input works regardless of the specific auth token role
+drop policy if exists "Allow authenticated insert access" on announcements;
+drop policy if exists "Allow public insert access" on announcements;
+create policy "Allow public insert access"
   on announcements
   for insert
-  to authenticated
+  to public
   with check (true);
 
 -- 2. Ensure Realtime is enabled for the announcements table
