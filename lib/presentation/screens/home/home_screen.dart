@@ -133,6 +133,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             llmOutputText.contains('immediately') ||
             llmOutputText.contains('reached') ||
             llmOutputText.contains('platform') ||
+            llmOutputText.contains('arrived') ||
+            llmOutputText.contains('arriving') ||
             llmOutputText.contains('cancelled') ||
             llmOutputText.contains('emergency')) {
           priority = 'High';
@@ -206,7 +208,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Navigator.pop(context);
               try {
                 await ref.read(apiServiceProvider).deleteAllAnnouncements();
-                // If using the StateNotifier provider, refresh it
+                // Force sync and refresh everything
+                ref.invalidate(announcementsRealtimeProvider);
                 ref.read(announcementsProvider.notifier).refresh();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
