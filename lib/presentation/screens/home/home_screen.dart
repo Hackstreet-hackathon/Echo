@@ -27,6 +27,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterTts _flutterTts = FlutterTts();
   bool _isRecording = false;
+  bool _isProcessing = false;
   String? _filePath;
   String? _currentlyPlayingId;
 
@@ -111,6 +112,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _sendAudio(File file) async {
+    setState(() {
+      _isProcessing = true;
+    });
     try {
       FormData formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(file.path, filename: "audio.wav"),
@@ -150,12 +154,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
         await ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson());
       }
-    } catch (e, s) {
-      AppLogger.debug("Error sending audio", e, s);
+    } finally {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error processing voice: ${e.toString()}")),
-        );
+        setState(() {
+          _isProcessing = false;
+        });
       }
     }
   }
@@ -291,23 +294,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
           Expanded(
-            child: announcementsAsync.when(
-              data: (list) {
-                if (list.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "No matching announcements",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  );
-                }
-                return _buildAnnouncementList(list);
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) {
-                // FALLBACK: If Realtime fails, try loading once from the standard provider
-                final announcementsState = ref.watch(announcementsProvider);
-                return announcementsState.when(
+            child: Stack(
+              children: [
+                announcementsAsync.when(
                   data: (list) {
                     if (list.isEmpty) {
                       return const Center(
@@ -320,14 +309,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     return _buildAnnouncementList(list);
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (innerErr, innerStack) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Error loading announcements: $err\n\nStandard Fetch also failed: $innerErr'),
+                  error: (err, stack) {
+                    // FALLBACK: If Realtime fails, try loading once from the standard provider
+                    final announcementsState = ref.watch(announcementsProvider);
+                    return announcementsState.when(
+                      data: (list) {
+                        if (list.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              "No matching announcements",
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                            ),
+                          );
+                        }
+                        return _buildAnnouncementList(list);
+                      },
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (innerErr, innerStack) => Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text('Error loading announcements: $err\n\nStandard Fetch also failed: $innerErr'),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (_isProcessing)
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(color: Colors.white),
+                          SizedBox(height: 16),
+                          Text(
+                            "Analyzing Voice...",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
-              },
+              ],
             ),
           ),
         ],
