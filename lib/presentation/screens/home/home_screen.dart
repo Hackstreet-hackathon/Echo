@@ -39,8 +39,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     dio = Dio(
       BaseOptions(
         baseUrl: backendUrl,
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 60),
       ),
     );
     _initRecorder();
@@ -167,6 +167,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Widget _buildAnnouncementList(List<AnnouncementModel> list) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(8),
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        final ann = list[index];
+        final announcementId = ann.id ?? index.toString();
+        final isSaved = ref.watch(savedAnnouncementsProvider).value?.any((e) => e.id == ann.id) ?? false;
+
+        return AnnouncementCard(
+          announcement: ann,
+          isFavorite: isSaved,
+          onFavorite: () => ref.read(savedAnnouncementsProvider.notifier).toggleSave(ann),
+          onPlayVoice: () => _playAnnouncement(
+            ann.speechRecognized,
+            announcementId,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _recorder.closeRecorder();
@@ -248,28 +270,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   );
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final ann = list[index];
-                    final announcementId = ann.id ?? index.toString();
-                    final isSaved = ref.watch(savedAnnouncementsProvider).value?.any((e) => e.id == ann.id) ?? false;
-
-                    return AnnouncementCard(
-                      announcement: ann,
-                      isFavorite: isSaved,
-                      onFavorite: () => ref.read(savedAnnouncementsProvider.notifier).toggleSave(ann),
-                      onPlayVoice: () => _playAnnouncement(
-                        ann.speechRecognized,
-                        announcementId,
-                      ),
-                    );
-                  },
-                );
+                return _buildAnnouncementList(list);
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading announcements: $err')),
+              error: (err, stack) {
+                // FALLBACK: If Realtime fails, try loading once from the standard provider
+                final announcementsState = ref.watch(announcementsProvider);
+                return announcementsState.when(
+                  data: (list) {
+                    if (list.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No matching announcements",
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      );
+                    }
+                    return _buildAnnouncementList(list);
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (innerErr, innerStack) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text('Error loading announcements: $err\n\nStandard Fetch also failed: $innerErr'),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
