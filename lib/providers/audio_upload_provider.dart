@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,15 +17,15 @@ class AudioUploadNotifier
     try {
       state = const AsyncValue.loading();
 
-     var uri = Uri.parse("http://192.168.1.7:5000/upload_audio");
+      final backendUrl = dotenv.env['BACKEND_URL'] ?? "http://127.0.0.1:5000";
+      final uri = Uri.parse("$backendUrl/upload_audio");
 
-
-      var request = http.MultipartRequest("POST", uri);
+      final request = http.MultipartRequest("POST", uri);
       request.files.add(
         await http.MultipartFile.fromPath("file", file.path),
       );
 
-      var response = await request.send();
+      final response = await request.send();
 
       if (response.statusCode == 200) {
         final respStr = await response.stream.bytesToString();

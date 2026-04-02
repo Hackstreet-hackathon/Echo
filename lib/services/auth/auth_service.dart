@@ -30,6 +30,7 @@ class AuthService {
     bool isPWD = false,
     String? disabilityDetails,
   }) async {
+    AppLogger.debug('Attempting signUpWithPhone for: $phone');
     try {
       final metadata = <String, dynamic>{
         if (displayName != null) 'display_name': displayName,
@@ -41,9 +42,13 @@ class AuthService {
         phone: phone,
         data: metadata.isNotEmpty ? metadata : null,
       );
+      AppLogger.debug('OTP sent successfully for signup to: $phone');
     } on AuthException catch (e, s) {
-      AppLogger.debug('signUpWithPhone failed', e, s);
-      rethrow;
+      AppLogger.debug('signUpWithPhone failed: ${e.message}', e, s);
+      throw Exception(e.message);
+    } catch (e, s) {
+      AppLogger.debug('An unexpected error occurred during signUpWithPhone', e, s);
+      throw Exception('Failed to send verification code. Please try again.');
     }
   }
 
@@ -51,13 +56,18 @@ class AuthService {
   Future<void> signInWithPhone({
     required String phone,
   }) async {
+    AppLogger.debug('Attempting signInWithPhone for: $phone');
     try {
       await _client.auth.signInWithOtp(
         phone: phone,
       );
+      AppLogger.debug('OTP sent successfully for signin to: $phone');
     } on AuthException catch (e, s) {
-      AppLogger.debug('signInWithPhone failed', e, s);
-      rethrow;
+      AppLogger.debug('signInWithPhone failed: ${e.message}', e, s);
+      throw Exception(e.message);
+    } catch (e, s) {
+      AppLogger.debug('An unexpected error occurred during signInWithPhone', e, s);
+      throw Exception('Failed to send verification code. Please try again.');
     }
   }
 
@@ -66,15 +76,20 @@ class AuthService {
     required String phone,
     required String token,
   }) async {
+    AppLogger.debug('Attempting verifyOTP for: $phone with token: $token');
     try {
       await _client.auth.verifyOTP(
         phone: phone,
         token: token,
         type: OtpType.sms,
       );
+      AppLogger.debug('OTP verified successfully for: $phone');
     } on AuthException catch (e, s) {
-      AppLogger.debug('verifyOTP failed', e, s);
-      rethrow;
+      AppLogger.debug('verifyOTP failed: ${e.message}', e, s);
+      throw Exception(e.message);
+    } catch (e, s) {
+      AppLogger.debug('An unexpected error occurred during verifyOTP', e, s);
+      throw Exception('Verification failed. Please check the code and try again.');
     }
   }
 

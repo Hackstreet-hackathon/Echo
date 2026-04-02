@@ -29,3 +29,10 @@ ios/Flutter/Flutter.framework
 *.swp
 *.swo
 .env
+*.txt
+*.wav
+# Allow SQL and JSON files for project setup
+!*.sql
+!*.json
+!assets/data/*.json
+!voice_inputs.json

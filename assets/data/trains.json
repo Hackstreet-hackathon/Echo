@@ -106,5 +106,6 @@
   {"number": "20847", "name": "Durg Udhampur Express", "from": "Durg", "to": "Udhampur"},
   {"number": "20173", "name": "Rani Kamlapati Vande Bharat", "from": "Jabalpur", "to": "Rani Kamlapati"},
   {"number": "20901", "name": "Vande Bharat Express", "from": "Mumbai Central", "to": "Gandhinagar Capital"},
-  {"number": "20607", "name": "Vande Bharat Express", "from": "Chennai Central", "to": "Mysore"}
+  {"number": "20607", "name": "Vande Bharat Express", "from": "Chennai Central", "to": "Mysore"},
+  {"number": "12915", "name": "Ashram Superfast Express", "from": "Sabarmati BG", "to": "Old Delhi"}
 ]

@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../../../providers/announcement_provider.dart';
 import '../../../providers/providers.dart';
@@ -29,17 +30,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _filePath;
   String? _currentlyPlayingId;
 
-  final Dio dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://echo-0jga.onrender.com',
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-    ),
-  );
+  late final Dio dio;
 
   @override
   void initState() {
     super.initState();
+    final backendUrl = dotenv.env['BACKEND_URL'] ?? 'https://echo-0jga.onrender.com';
+    dio = Dio(
+      BaseOptions(
+        baseUrl: backendUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+      ),
+    );
     _initRecorder();
     _initTts();
   }
@@ -129,6 +132,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     } catch (e, s) {
       AppLogger.debug("Error sending audio", e, s);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error processing voice: ${e.toString()}")),
+        );
+      }
     }
   }
 
@@ -157,45 +165,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
     );
-  }
-
-  Color _getPriorityColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return Colors.red.shade100;
-      case 'medium':
-        return Colors.orange.shade100;
-      case 'low':
-        return Colors.green.shade100;
-      default:
-        return Colors.grey.shade100;
-    }
-  }
-
-  Color _getPriorityBorderColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _getPriorityLabel(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return 'HIGH PRIORITY';
-      case 'medium':
-        return 'MEDIUM PRIORITY';
-      case 'low':
-        return 'LOW PRIORITY';
-      default:
-        return 'UNKNOWN';
-    }
   }
 
   @override

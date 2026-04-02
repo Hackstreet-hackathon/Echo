@@ -57,15 +57,15 @@ class _AppSetupState extends State<AppSetup> {
 
       // 4. Environment
       setState(() => _statusMessage = '🔑 Loading Configuration...');
-      // await dotenv.load(fileName: ".env");
+      await dotenv.load(fileName: ".env");
 
       // 5. Supabase
       setState(() => _statusMessage = '⚡ Connecting to Cloud...');
       // debugPrint('Connecting to Supabase: ${dotenv.env['SUPABASE_URL']}');
 
       await Supabase.initialize(
-        url: "https://tzxhevtpeerooqmmriuk.supabase.co",
-        anonKey: "sb_publishable_VAsQyXuddxZOkHgmtu-m7w_3hy28bDV",
+        url: dotenv.env['SUPABASE_URL'] ?? "https://tzxhevtpeerooqmmriuk.supabase.co",
+        anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? "sb_publishable_VAsQyXuddxZOkHgmtu-m7w_3hy28bDV",
       );
 
       // 6. Notifications
