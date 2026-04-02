@@ -141,13 +141,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           priority = 'Medium';
         }
 
-        final currentFilter = ref.read(trainFilterProvider);
         final announcement = AnnouncementModel(
           name: "Station Announcement",
           speechRecognized: data['llm_output'] ?? '',
           priority: priority,
           time: DateTime.now().toIso8601String(),
-          trainNumber: currentFilter != 'All' ? currentFilter : null,
         );
 
         await ref.read(apiServiceProvider).uploadAnnouncement(announcement.toJson());
