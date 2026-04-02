@@ -128,10 +128,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         if (llmOutputText.contains('1 minute') || 
             llmOutputText.contains('2 minute') || 
             llmOutputText.contains('5 second') || 
+            llmOutputText.contains('10 second') ||
             llmOutputText.contains('immediately') ||
             llmOutputText.contains('cancelled') ||
             llmOutputText.contains('emergency')) {
           priority = 'High';
+        } 
+        // Force Medium for moderate timings
+        else if (llmOutputText.contains('5 minute') || 
+                 llmOutputText.contains('10 minute') ||
+                 llmOutputText.contains('delayed')) {
+          priority = 'Medium';
         }
 
         final currentFilter = ref.read(trainFilterProvider);
