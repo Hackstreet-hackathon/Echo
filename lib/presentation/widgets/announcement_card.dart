@@ -98,47 +98,44 @@ class AnnouncementCard extends StatelessWidget {
                         // Enhanced priority badge
                         Row(
                           children: [
-                            if (announcement.priority.toLowerCase() != 'low')
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, 
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: priorityBgColor,
-                                  borderRadius: BorderRadius.circular(6),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (priorityBgColor ?? Colors.transparent)
-                                          .withOpacity(0.3),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      announcement.priority.toLowerCase() == 'high'
-                                          ? Icons.priority_high
-                                          : Icons.warning_amber_rounded,
-                                      size: 14,
-                                      color: priorityTextColor,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${announcement.priority.toUpperCase()} PRIORITY',
-                                      style: TextStyle(
-                                        color: priorityTextColor,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10, 
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: priorityBgColor ?? AppColors.cardDark.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: borderColor?.withOpacity(0.5) ?? Colors.grey.withOpacity(0.2),
+                                  width: 1,
                                 ),
                               ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    announcement.priority.toLowerCase() == 'high' || announcement.priority.toLowerCase() == 'emergency'
+                                        ? Icons.priority_high
+                                        : (announcement.priority.toLowerCase() == 'medium' 
+                                           ? Icons.warning_amber_rounded
+                                           : Icons.info_outline),
+                                    size: 14,
+                                    color: priorityTextColor ?? AppColors.textSecondaryDark,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    announcement.priority.toUpperCase(),
+                                    style: TextStyle(
+                                      color: priorityTextColor ?? AppColors.textSecondaryDark,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(

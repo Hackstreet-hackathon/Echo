@@ -31,8 +31,8 @@ def analyze_with_llm(text):
 2. "priority": One of "high", "medium", or "low" based on urgency
 
 Priority guidelines:
-- HIGH: Safety issues, emergencies, immediate platform changes, train cancellations, severe delays, 2 mins, 1 min delay 
-- MEDIUM: Moderate delays, platform announcements, service updates, the train will arrive in 10 min
+- HIGH: Safety issues, emergencies, immediate platform changes, train cancellations, severe delays, arriving in 1-2 minutes, urgent track updates
+- MEDIUM: Moderate delays, platform announcements, service updates, the train will arrive in 5-10 min
 - LOW: General information, next station announcements, routine updates, train has started from its destination
 
 Return ONLY valid JSON in this format:
