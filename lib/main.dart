@@ -13,6 +13,7 @@ import 'services/cache/cache_service.dart';
 import 'services/notification/notification_service.dart';
 import 'services/storage/preferences_service.dart';
 import 'providers/accessibility_provider.dart';
+import 'providers/providers.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,36 +45,28 @@ class _AppSetupState extends State<AppSetup> {
     });
 
     try {
-      // 1. Preferences
       setState(() => _statusMessage = '📦 Initializing Preferences...');
       await PreferencesService.ensureInit();
 
-      // 2. Hive
       setState(() => _statusMessage = '📦 Initializing Local Database...');
       await Hive.initFlutter();
 
-      // 3. Cache
       setState(() => _statusMessage = '📦 Initializing Cache...');
       await CacheService.init();
 
-      // 4. Environment
       setState(() => _statusMessage = '🔑 Loading Configuration...');
       await dotenv.load(fileName: ".env");
 
-      // 5. Supabase
       setState(() => _statusMessage = '⚡ Connecting to Cloud...');
-      // debugPrint('Connecting to Supabase: ${dotenv.env['SUPABASE_URL']}');
 
       await Supabase.initialize(
         url: dotenv.env['SUPABASE_URL'] ?? "https://tzxhevtpeerooqmmriuk.supabase.co",
         anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? "sb_publishable_VAsQyXuddxZOkHgmtu-m7w_3hy28bDV",
       );
 
-      // 6. Notifications
       setState(() => _statusMessage = '🔔 Setting up Notifications...');
       await NotificationService().init();
 
-      // 7. UI System Overlay
       setState(() => _statusMessage = '🎨 Finalizing UI...');
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
@@ -84,7 +77,6 @@ class _AppSetupState extends State<AppSetup> {
         ),
       );
 
-      // Done
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -109,7 +101,7 @@ class _AppSetupState extends State<AppSetup> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme, // Use dark theme for splash/loading
+      theme: AppTheme.darkTheme,
       home: Scaffold(
         backgroundColor: const Color(0xFF0D1117),
         body: Center(
@@ -118,7 +110,6 @@ class _AppSetupState extends State<AppSetup> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo or Icon
                 const Icon(
                   Icons.multitrack_audio_rounded,
                   size: 64,
@@ -126,7 +117,6 @@ class _AppSetupState extends State<AppSetup> {
                 ),
                 const SizedBox(height: 24),
 
-                // Title
                 const Text(
                   'ECHO',
                   style: TextStyle(
@@ -138,7 +128,6 @@ class _AppSetupState extends State<AppSetup> {
                 ),
                 const SizedBox(height: 48),
 
-                // Content based on state
                 if (_errorMessage != null) ...[
                   const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),

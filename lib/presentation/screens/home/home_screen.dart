@@ -269,16 +269,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final announcementsAsync = ref.watch(announcementsRealtimeProvider);
     final accessibility = ref.watch(accessibilitySettingsProvider);
 
-    // Auto-playback logic for new announcements
     ref.listen(announcementsRealtimeProvider, (previous, next) {
       if (accessibility.voicePlaybackEnabled) {
         next.whenData((list) {
           if (list.isNotEmpty) {
             final latest = list.first;
-            final isNew = previous == null || 
-                         previous.value == null || 
-                         previous.value!.isEmpty || 
-                         (latest.id != null && !previous.value!.any((e) => e.id == latest.id));
+            final isNew = previous != null && 
+                         latest.id != null && 
+                         (previous.value == null || 
+                          previous.value!.isEmpty || 
+                          !previous.value!.any((e) => e.id == latest.id));
             
             if (isNew) {
               _playAnnouncement(latest.speechRecognized, latest.id ?? 'auto');

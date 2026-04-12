@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 
-/// ECHO theme configuration - Material 3 with black theme
 class AppTheme {
   AppTheme._();
 

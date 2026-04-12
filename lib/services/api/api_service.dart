@@ -135,6 +135,8 @@ class ApiService {
       AppLogger.debug('getSavedAnnouncements failed', e, s);
       rethrow;
     }
+  }
+
   Future<Map<String, dynamic>?> getProfile() async {
     final user = _client.auth.currentUser;
     if (user == null) return null;

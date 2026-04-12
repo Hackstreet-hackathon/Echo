@@ -53,8 +53,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       final auth = ref.read(authServiceProvider);
       final isPWD = _hasDisability == 'Yes';
       final phoneNumber = _phoneController.text.trim();
-      
-      // Ensure phone starts with +
       final formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : '+$phoneNumber';
       
       await auth.signUpWithPhone(

@@ -5,7 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/storage_keys.dart';
 import '../data/models/accessibility_settings_model.dart';
 import '../providers/providers.dart';
+import '../providers/auth_provider.dart';
 import '../services/storage/preferences_service.dart';
+import '../services/api/api_service.dart';
+import '../core/utils/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final accessibilitySettingsProvider =
     StateNotifierProvider<AccessibilitySettingsNotifier, AccessibilitySettingsModel>(
@@ -25,8 +29,7 @@ final accessibilitySettingsProvider =
     
     final notifier = AccessibilitySettingsNotifier(prefs, api, settings);
     
-    // Listen to auth changes to sync/reset settings
-    ref.listen(authStateProvider, (previous, next) {
+    ref.listen<AsyncValue<AuthState>>(authStateProvider, (previous, next) {
       next.whenData((state) {
         if (state.event == AuthChangeEvent.signedIn) {
           notifier.loadFromSupabase();
@@ -58,7 +61,6 @@ class AccessibilitySettingsNotifier
         'accessibility_settings': state.toJson(),
       });
     } catch (e) {
-      // Just log, don't break the UI
       AppLogger.debug('Failed to sync settings to Supabase', e);
     }
   }

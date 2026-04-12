@@ -49,8 +49,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final auth = ref.read(authServiceProvider);
       final phoneNumber = _phoneController.text.trim();
-      
-      // Ensure phone starts with +
       final formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : '+$phoneNumber';
       
       await auth.signInWithPhone(
