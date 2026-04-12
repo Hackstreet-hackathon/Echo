@@ -12,6 +12,7 @@ import 'providers/theme_provider.dart';
 import 'services/cache/cache_service.dart';
 import 'services/notification/notification_service.dart';
 import 'services/storage/preferences_service.dart';
+import 'providers/accessibility_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -187,6 +188,7 @@ class EchoApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final accessibility = ref.watch(accessibilitySettingsProvider);
+    final isAuthenticated = ref.watch(authServiceProvider).isAuthenticated;
     final router = createAppRouter();
 
     return MaterialApp.router(
@@ -199,7 +201,7 @@ class EchoApp extends ConsumerWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: accessibility.largeTextMode ? 1.4 : 1.0,
+            textScaleFactor: (isAuthenticated && accessibility.largeTextMode) ? 1.4 : 1.0,
           ),
           child: child!,
         );

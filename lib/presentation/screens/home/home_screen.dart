@@ -280,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                          previous.value!.isEmpty || 
                          (latest.id != null && !previous.value!.any((e) => e.id == latest.id));
             
-            if (isNew && (latest.priority.toLowerCase() == 'high' || latest.priority.toLowerCase() == 'emergency')) {
+            if (isNew) {
               _playAnnouncement(latest.speechRecognized, latest.id ?? 'auto');
             }
           }

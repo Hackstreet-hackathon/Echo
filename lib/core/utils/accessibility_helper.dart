@@ -16,7 +16,7 @@ class AccessibilityHelper {
           HapticFeedback.mediumImpact();
           break;
         case HapticFeedbackType.heavy:
-          HapticFeedback.heavyImpact();
+          HapticFeedback.vibrate();
           break;
         case HapticFeedbackType.selection:
           HapticFeedback.selectionClick();

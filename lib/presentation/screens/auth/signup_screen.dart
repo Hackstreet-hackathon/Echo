@@ -124,7 +124,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Phone Number',
                     prefixIcon: Icon(Icons.phone_outlined),
-                    hintText: '+919876543210',
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Enter your phone number';

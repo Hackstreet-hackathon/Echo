@@ -135,5 +135,31 @@ class ApiService {
       AppLogger.debug('getSavedAnnouncements failed', e, s);
       rethrow;
     }
+  Future<Map<String, dynamic>?> getProfile() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return null;
+
+    try {
+      return await _client
+          .from('user_profiles')
+          .select()
+          .eq('id', user.id)
+          .maybeSingle();
+    } catch (e, s) {
+      AppLogger.debug('getProfile failed', e, s);
+      return null; // Return null on error to avoid breaking things
+    }
+  }
+
+  Future<void> updateProfile(Map<String, dynamic> data) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    try {
+      await _client.from('user_profiles').update(data).eq('id', user.id);
+    } catch (e, s) {
+      AppLogger.debug('updateProfile failed', e, s);
+      rethrow;
+    }
   }
 }

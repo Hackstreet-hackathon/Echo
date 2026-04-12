@@ -12,7 +12,7 @@ class AppTheme {
   static ThemeData dark({bool highContrast = false}) {
     final background = highContrast ? Colors.black : AppColors.backgroundDark;
     final surface = highContrast ? Colors.black : AppColors.surfaceDark;
-    final card = highContrast ? const Color(0xFF161B22) : AppColors.cardDark;
+    final card = highContrast ? Colors.black : AppColors.cardDark;
     final text = highContrast ? Colors.white : AppColors.textPrimaryDark;
     final accent = highContrast ? Colors.white : AppColors.primary;
 
