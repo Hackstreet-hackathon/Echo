@@ -22,11 +22,25 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   String? _hasDisability;
 
   @override
+  void initState() {
+    super.initState();
+    _phoneController.addListener(_onPhoneChanged);
+  }
+
+  @override
   void dispose() {
+    _phoneController.removeListener(_onPhoneChanged);
     _phoneController.dispose();
     _nameController.dispose();
     _disabilityDetailsController.dispose();
     super.dispose();
+  }
+
+  void _onPhoneChanged() {
+    final text = _phoneController.text.trim();
+    if (text.startsWith('+') && text.length >= 13 && !_isLoading) {
+      _signUp();
+    }
   }
 
   Future<void> _signUp() async {

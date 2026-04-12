@@ -7,13 +7,11 @@ import os
 import uuid
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app) # Enable CORS for Flutter web/mobile
+CORS(app) 
 
-# LLM CLIENT
 client = OpenAI(
     api_key=os.environ.get("OPENROUTER_KEY"),
     base_url="https://openrouter.ai/api/v1"
@@ -42,7 +40,6 @@ Return ONLY valid JSON in this format:
         )
 
         result = response.choices[0].message.content
-        # Basic cleanup of markdown if LLM returns it
         if "```json" in result:
             result = result.split("```json")[1].split("```")[0].strip()
         elif "```" in result:
@@ -91,5 +88,4 @@ def upload_audio():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    # For local testing
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

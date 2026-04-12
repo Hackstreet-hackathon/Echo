@@ -7,7 +7,6 @@ import '../../core/utils/logger.dart';
 import '../../data/models/user_profile_model.dart';
 import '../storage/preferences_service.dart';
 
-/// Auth service using Supabase
 class AuthService {
   AuthService({
     SupabaseClient? client,
@@ -23,7 +22,6 @@ class AuthService {
 
   Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;
 
-  /// Sign up with phone number and send OTP
   Future<void> signUpWithPhone({
     required String phone,
     String? displayName,
@@ -52,7 +50,6 @@ class AuthService {
     }
   }
 
-  /// Sign in with phone number and send OTP
   Future<void> signInWithPhone({
     required String phone,
   }) async {
@@ -71,7 +68,6 @@ class AuthService {
     }
   }
 
-  /// Verify OTP code
   Future<void> verifyOTP({
     required String phone,
     required String token,
