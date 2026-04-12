@@ -7,27 +7,39 @@ import 'app_colors.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
+  static ThemeData get darkTheme => dark(highContrast: false);
+
+  static ThemeData dark({bool highContrast = false}) {
+    final background = highContrast ? Colors.black : AppColors.backgroundDark;
+    final surface = highContrast ? Colors.black : AppColors.surfaceDark;
+    final card = highContrast ? const Color(0xFF161B22) : AppColors.cardDark;
+    final text = highContrast ? Colors.white : AppColors.textPrimaryDark;
+    final accent = highContrast ? Colors.white : AppColors.primary;
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
+      colorScheme: ColorScheme.dark(
+        primary: accent,
+        onPrimary: highContrast ? Colors.black : Colors.white,
         primaryContainer: AppColors.primaryDark,
         secondary: AppColors.accent,
         onSecondary: Colors.black,
-        surface: AppColors.surfaceDark,
-        onSurface: AppColors.textPrimaryDark,
+        surface: surface,
+        onSurface: text,
         surfaceContainerHighest: AppColors.cardElevatedDark,
         error: AppColors.error,
         onError: Colors.white,
+        outline: highContrast ? Colors.white : AppColors.textSecondaryDark,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundDark,
+      scaffoldBackgroundColor: background,
       cardTheme: CardThemeData(
-        color: AppColors.cardDark,
+        color: card,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: highContrast ? const BorderSide(color: Colors.white, width: 2) : BorderSide.none,
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.backgroundDark,
@@ -82,30 +94,37 @@ class AppTheme {
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.cardDark,
-        selectedColor: AppColors.primary,
-        labelStyle: const TextStyle(color: AppColors.textPrimaryDark),
+        backgroundColor: card,
+        selectedColor: accent,
+        labelStyle: TextStyle(color: text),
       ),
     );
   }
 
-  static ThemeData get lightTheme {
+  static ThemeData get lightTheme => light(highContrast: false);
+
+  static ThemeData light({bool highContrast = false}) {
+    final background = highContrast ? Colors.white : AppColors.backgroundLight;
+    final text = highContrast ? Colors.black : AppColors.textPrimaryLight;
+    final accent = highContrast ? Colors.black : AppColors.primary;
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
+      colorScheme: ColorScheme.light(
+        primary: accent,
+        onPrimary: highContrast ? Colors.white : Colors.white,
         primaryContainer: AppColors.primaryLight,
         secondary: AppColors.accent,
         onSecondary: Colors.black,
-        surface: AppColors.surfaceLight,
-        onSurface: AppColors.textPrimaryLight,
+        surface: background,
+        onSurface: text,
         surfaceContainerHighest: AppColors.cardLight,
         error: AppColors.error,
         onError: Colors.white,
+        outline: highContrast ? Colors.black : AppColors.textSecondaryLight,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundLight,
+      scaffoldBackgroundColor: background,
       cardTheme: CardThemeData(
         color: AppColors.cardLight,
         elevation: 0,

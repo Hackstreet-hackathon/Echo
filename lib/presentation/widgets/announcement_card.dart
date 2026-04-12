@@ -163,12 +163,14 @@ class AnnouncementCard extends StatelessWidget {
                       onPressed: onFavorite,
                     ),
                   if (onPlayVoice != null)
-                    IconButton(
-                      icon: const Icon(Icons.volume_up_outlined),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        onPlayVoice!();
-                      },
+                    Consumer(
+                      builder: (context, ref, _) => IconButton(
+                        icon: const Icon(Icons.volume_up_outlined),
+                        onPressed: () {
+                          AccessibilityHelper.vibrate(ref);
+                          onPlayVoice!();
+                        },
+                      ),
                     ),
                 ],
               ),

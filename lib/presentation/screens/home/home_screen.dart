@@ -13,6 +13,8 @@ import '../../../providers/providers.dart';
 import '../../../data/models/announcement_model.dart';
 import '../../../core/utils/logger.dart';
 import '../../../providers/saved_announcements_provider.dart';
+import '../../../providers/accessibility_provider.dart';
+import '../../../core/utils/accessibility_helper.dart';
 import '../filters/train_filter_screen.dart';
 import '../../widgets/announcement_card.dart';
 
@@ -88,6 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _startRecording() async {
+    AccessibilityHelper.vibrate(ref, type: HapticFeedbackType.medium);
     Directory tempDir = await getTemporaryDirectory();
     String path = '${tempDir.path}/recorded_audio.wav';
     await _recorder.startRecorder(
@@ -102,6 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _stopRecording() async {
     await _recorder.stopRecorder();
+    AccessibilityHelper.vibrate(ref, type: HapticFeedbackType.light);
     setState(() {
       _isRecording = false;
     });
@@ -263,6 +267,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final announcementsAsync = ref.watch(announcementsRealtimeProvider);
+    final accessibility = ref.watch(accessibilitySettingsProvider);
+
+    // Auto-playback logic for new announcements
+    ref.listen(announcementsRealtimeProvider, (previous, next) {
+      if (accessibility.voicePlaybackEnabled) {
+        next.whenData((list) {
+          if (list.isNotEmpty) {
+            final latest = list.first;
+            final isNew = previous == null || 
+                         previous.value == null || 
+                         previous.value!.isEmpty || 
+                         (latest.id != null && !previous.value!.any((e) => e.id == latest.id));
+            
+            if (isNew && (latest.priority.toLowerCase() == 'high' || latest.priority.toLowerCase() == 'emergency')) {
+              _playAnnouncement(latest.speechRecognized, latest.id ?? 'auto');
+            }
+          }
+        });
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(

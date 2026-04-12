@@ -186,15 +186,24 @@ class EchoApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final accessibility = ref.watch(accessibilitySettingsProvider);
     final router = createAppRouter();
 
     return MaterialApp.router(
       title: 'ECHO',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.light(highContrast: accessibility.highContrastMode),
+      darkTheme: AppTheme.dark(highContrast: accessibility.highContrastMode),
       themeMode: themeMode,
       routerConfig: router,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaleFactor: accessibility.largeTextMode ? 1.4 : 1.0,
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }
