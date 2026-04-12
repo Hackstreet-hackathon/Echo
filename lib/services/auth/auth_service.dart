@@ -79,7 +79,9 @@ class AuthService {
         token: token,
         type: OtpType.sms,
       );
-      AppLogger.debug('OTP verified successfully for: $phone');
+      // Clear profile cache on successful login to prevent account cross-linking
+      await _preferences.remove(StorageKeys.userProfile);
+      AppLogger.debug('OTP verified successfully and cache cleared for: $phone');
     } on AuthException catch (e, s) {
       AppLogger.debug('verifyOTP failed: ${e.message}', e, s);
       throw Exception(e.message);

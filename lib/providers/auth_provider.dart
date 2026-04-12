@@ -16,7 +16,20 @@ final currentUserProvider = Provider<User?>((ref) {
 
 final userProfileProvider = StateNotifierProvider<UserProfileNotifier, UserProfileModel?>((ref) {
   final auth = ref.watch(authServiceProvider);
-  return UserProfileNotifier(auth);
+  final notifier = UserProfileNotifier(auth);
+  
+  // Listen to auth changes and update profile
+  ref.listen(authStateProvider, (previous, next) {
+    next.whenData((state) {
+      if (state.event == AuthChangeEvent.signedIn || state.event == AuthChangeEvent.tokenRefreshed) {
+        notifier.loadFromAuth();
+      } else if (state.event == AuthChangeEvent.signedOut) {
+        notifier.clearProfile();
+      }
+    });
+  });
+
+  return notifier;
 });
 
 class UserProfileNotifier extends StateNotifier<UserProfileModel?> {
@@ -29,12 +42,19 @@ class UserProfileNotifier extends StateNotifier<UserProfileModel?> {
     _auth.cacheProfile(profile);
   }
 
+  void clearProfile() {
+    state = null;
+  }
+
   void loadFromAuth() {
     final user = _auth.currentUser;
     if (user != null) {
       state = (state ?? const UserProfileModel()).copyWith(
         id: user.id,
         phone: user.phone,
+        displayName: user.userMetadata?['display_name'] as String?,
+        isPWD: (user.userMetadata?['isPWD'] as bool?) ?? false,
+        disabilityDetails: user.userMetadata?['disability_details'] as String?,
       );
     }
   }
