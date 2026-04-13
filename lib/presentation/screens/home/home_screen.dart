@@ -30,6 +30,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _isRecording = false;
   bool _isProcessing = false;
+  bool _isRecorderInitialized = false;
   String? _filePath;
   String? _currentlyPlayingId;
 
@@ -51,8 +52,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _initRecorder() async {
-    if (!_recorder.isRecorderOpen) {
+    if (!_isRecorderInitialized) {
       await _recorder.openRecorder();
+      _isRecorderInitialized = true;
     }
     await Permission.microphone.request();
   }
