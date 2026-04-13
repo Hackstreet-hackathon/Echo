@@ -51,7 +51,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _initRecorder() async {
-    await _recorder.openRecorder();
+    if (!_recorder.isRecorderOpen) {
+      await _recorder.openRecorder();
+    }
     await Permission.microphone.request();
   }
 
@@ -90,6 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _startRecording() async {
+    await _initRecorder(); // Robustness: ensure recorder is open if it closed while app was idle
     AccessibilityHelper.vibrate(ref, type: HapticFeedbackType.medium);
     Directory tempDir = await getTemporaryDirectory();
     String path = '${tempDir.path}/recorded_audio.wav';
@@ -400,12 +403,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           CircularProgressIndicator(color: Colors.white),
-                          SizedBox(height: 16),
-                          Text(
-                            "Analyzing Voice...",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
                         ],
+
                       ),
                     ),
                   ),

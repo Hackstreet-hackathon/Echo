@@ -7,6 +7,9 @@ import '../../../core/constants/storage_keys.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/providers.dart';
 import '../../../services/storage/preferences_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -41,6 +44,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final prefs = ref.read(preferencesServiceProvider);
     final onboardingDone = prefs.getBool(StorageKeys.onboardingComplete, defaultValue: false);
     final auth = ref.read(authServiceProvider);
+    
+    // Wake up backend (Render cold start) in background
+    final backendUrl = dotenv.env['BACKEND_URL'] ?? 'https://echo-0jga.onrender.com';
+    http.get(Uri.parse(backendUrl)).catchError((_) => http.Response('', 500));
+
 
     if (!onboardingDone) {
       context.go('/onboarding');
