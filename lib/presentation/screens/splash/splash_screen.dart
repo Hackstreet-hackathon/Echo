@@ -45,7 +45,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final onboardingDone = prefs.getBool(StorageKeys.onboardingComplete, defaultValue: false);
     final auth = ref.read(authServiceProvider);
     
-    // Wake up backend (Render cold start) in background
     final backendUrl = dotenv.env['BACKEND_URL'] ?? 'https://echo-0jga.onrender.com';
     http.get(Uri.parse(backendUrl)).catchError((_) => http.Response('', 500));
 

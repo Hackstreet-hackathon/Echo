@@ -101,6 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     await _recorder.startRecorder(
       toFile: path,
       codec: Codec.pcm16WAV,
+      audioSource: AudioSource.unprocessed,
     );
     setState(() {
       _isRecording = true;
@@ -182,11 +183,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         setState(() {
           _isProcessing = false;
         });
+        
+        String errorMessage = "Error: ${e.toString()}";
+        if (e is DioException) {
+          if (e.type == DioExceptionType.connectionTimeout) {
+            errorMessage = "Connection timeout. Render might be starting up...";
+          } else if (e.response?.statusCode == 400) {
+            errorMessage = e.response?.data['error']?.toString() ?? "Speech not clear. Please try again.";
+          }
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e is DioException && e.type == DioExceptionType.connectionTimeout 
-              ? "Connection timeout. Render might be starting up..." 
-              : "Error: ${e.toString()}"),
+            content: Text(errorMessage),
             duration: const Duration(seconds: 5),
           ),
         );
